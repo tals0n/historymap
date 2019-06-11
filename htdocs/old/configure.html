@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="de">
+	<head>
+		<title>History Map</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="./css/bootstrap.min.css">
+		<link rel="stylesheet" href="./css/font-awesome.min.css">
+		<link rel="stylesheet" href="./css/footer.css">
+	</head>
+	<body>
+		<div id="nav"></div>
+		<div id="info"></div>
+		<div id="temp"></div>
+		<div class="container mt-5">		
+			<form>
+				<div id="addMap">
+					<h3>Add map</h3>
+					<label class="mt-3" for="url">map url</label>
+					<input type="text" class="form-control" id="url" aria-describedby="url_help" placeholder="map url">
+					<small id="url_help" class="form-text text-muted">The url of the map.</small>
+					<label class="mt-3" for="url">img url</label>
+					<input type="text" class="form-control" id="img" aria-describedby="img_help" placeholder="img url">
+					<small id="img_help" class="form-text text-muted">The url of the img.</small>
+					<label class="mt-3" for="anno">anno</label>
+					<input type="text" class="form-control" id="anno" aria-describedby="anno_help" placeholder="anno">
+					<small id="anno_help" class="form-text text-muted">The anno of the map.</small>
+					<label class="mt-3" for="scale">scale</label>
+					<input type="text" class="form-control" id="scale" aria-describedby="scale_help" placeholder="scale eg. 0.05">
+					<small id="scale_help" class="form-text text-muted">The scale of the map.</small>
+					<label class="mt-3" for="description">description</label>
+					<input type="text" class="form-control" id="description" aria-describedby="description_help" placeholder="description">
+					<small id="description_help" class="form-text text-muted">The description of the map.</small>
+				</div>
+				<div id="addLocation">
+					<h3 class="mt-5 mb-4">Add location to map</h3>
+					<ul class="list-group" id="mapLocations">
+						<!-- <li class="list-group-item" id="locationID-1">Worms<span class="close" onclick="deleteLocation(1)" aria-label="close">&times;</span></li>
+						<li class="list-group-item" id="locationID-2">Alzey<span class="close" onclick="deleteLocation(2)" aria-label="close">&times;</span></li>
+						<li class="list-group-item" id="locationID-3">Monsheim<span class="close" onclick="deleteLocation(3)" aria-label="close">&times;</span></li>
+						<li class="list-group-item" id="locationID-4">Lautersheim<span class="close" onclick="deleteLocation(4)" aria-label="close">&times;</span></li>
+						<li class="list-group-item" id="locationID-5">Frankfurt<span class="close" onclick="deleteLocation(5)" aria-label="close">&times;</span></li> -->
+					</ul>
+				</div>
+				<div id="findLocation">
+					<label class="mt-4" for="sel1">Find location:</label>
+					<div class="row form-group">
+						<div class="input-group">
+							<input type="text" class="form-control" id="findLocationLike" aria-describedby="find_location_help" name="location" placeholder="find location" />
+							<div class="input-group-btn">
+								<button type="button" onclick="findLocationFE()" class="btn btn-info"><i class="fa fa-search"></i></button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="selectLocation">
+					<small id="location_help" class="form-text text-muted">The ...</small>
+					<label for="sel1">Select location:</label>
+					<div class="row form-group">
+						<div class="input-group">
+							<select aria-describedby="location_list_help" class="form-control" id="selectMapLocation">
+								<!-- <option value="1">Hallo Welt</option>
+								<option value="2">Hallo sonst was</option>
+								<option value="3">Hallo test</option>
+								<option value="4">Hallo test2</option> -->
+							</select>
+							<div class="input-group-btn">
+								<button type="button" class="btn btn-success" onclick="addMapLocationFE()"><i class="fa fa-plus"></i></button>
+								<button type="button" class="btn btn-danger" onclick="abortAddMapLocationFE()"><i class="fa fa-times"></i></button>
+							</div>
+						</div>
+					</div>
+					<small id="location_list_help" class="form-text text-muted">The ...</small>
+				</div>
+				<div id="addLocationDB">
+					<h3>Add location to database</h3>
+					<label class="mt-3" for="addLocation_locationName">location name</label>
+					<input type="text" class="form-control" id="locationName" aria-describedby="addLocation_locationName_help" placeholder="location name">
+					<small id="addLocation_locationName_help" class="form-text text-muted">The name of the location.</small>
+					<label class="mt-3" for="addLocation_lon">longitude</label>
+					<input type="text" class="form-control" id="locationLon" aria-describedby="addLocation_lon_help" placeholder="longitude eg. 49.6348839">
+					<small id="addLocation_lon_help" class="form-text text-muted">The longitude of the location.</small>
+					<label class="mt-3" for="addLocation_lat">latitude</label>
+					<input type="text" class="form-control" id="locationLat" aria-describedby="addLocation_lat_help" placeholder="latitude eg. 8.3445789">
+					<small id="addLocation_lat_help" class="form-text text-muted">The latitude of the location.</small>
+					<label class="mt-3" for="addLocation_description">description</label>
+					<input type="text" class="form-control" id="locationDescription" aria-describedby="addLocation_description_help" placeholder="description">
+					<small id="addLocation_description_help" class="form-text text-muted">The description of the location.</small>
+					<button type="button" class="btn btn-primary my-4" onclick="addLocationFE()">submit location</button>
+				</div>
+				<button type="button" class="btn btn-primary my-4" onclick="addMapFE()">submit map</button>
+			</form>
+		</div>
+		<div id="footer"></div>
+		<script src="./js/jquery-3.2.1.min.js"></script>
+		<script src="./assets/js/vendor/popper.min.js"></script>
+		<script src="./js/bootstrap.min.js"></script>
+		<script src="./assets/js/ie10-viewport-bug-workaround.js"></script>
+		<script src="./js/history-map.js"></script>
+		<script>$.get('./footer.html', function(footer) { $('#footer').html(footer); }, 'text'); </script>
+		<script>$.get('./nav.html', function(nav) { $('#nav').html(nav); }, 'text'); </script>
+		<script type="text/javascript">
+			var webSocket = new WebSocket('ws://localhost:8080/historymaps/');
+			webSocket.onmessage = function(event) {
+				var response = JSON.parse(event.data);
+				if(typeof response.data.locationData != "undefined") {
+					var html = "";
+					$.each(response.data.locationData, function(index, location) {
+						html += "<option value=\"" + location.id + "\">" + location.name + "</option>";
+					});
+					$("#selectMapLocation").html(html);
+				}
+			};
+			
+			var locations = [];
+			
+			webSocket.onerror = function(event) { $('#info').html("<div class=\"alert alert-danger alert-dismissable fade show\" style=\"border-radius: 0; margin: 0px;\"><a href=\"#\" class=\"close\" data-dismiss=\"alert\" aria-label=\"close\">&times;</a><strong>ERROR: </strong> Database is not available!</div>"); }
+			
+			function deleteLocation(locationID) {
+				$("#locationID-" + locationID).remove();
+				locations = $.grep(locations, function(value) { return value != locationID; });
+			}
+			
+			function addMapFE() {
+				addMap(webSocket, $("#url").val(), $("#img").val(), $("#anno").val(), $("#scale").val(), $("#description").val(), locations);
+			}
+			
+			function addMapLocationFE() {
+				var locationId = $("#selectMapLocation").val();
+				locations.push("" + locationId);
+				var locationName = $("#selectMapLocation > option[value=" + locationId + "]").text();
+				alert(locationName + " - " + locationId);
+				if(locationName != null) {
+					$("#mapLocations").append("<li class=\"list-group-item\" id=\"locationID-" + locationId + "\">" + locationName + "<span class=\"close\" onclick=\"deleteLocation(" + locationId + ")\" aria-label=\"close\">&times;</span></li>");
+				}
+			}
+			
+			function findLocationFE() {
+				var locationLike = $("#findLocationLike").val();
+				getLocationsLike(webSocket, locationLike);
+			}
+			
+			function addLocationFE() {
+				addLocation(webSocket, $("#locationName").val(), $("#locationLon").val(), $("#locationLat").val(), $("#locationDescription").val());
+			}
+			
+			function abortAddMapLocationFE() {
+			
+			}
+		</script>
+	</body>
+</html>

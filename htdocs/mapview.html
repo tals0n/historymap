@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="de">
+	<head>
+		<title>History Map</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="./css/bootstrap.min.css">
+		<link rel="stylesheet" href="./css/font-awesome.min.css">
+		<link rel="stylesheet" href="./css/footer.css">
+	</head>
+	<body>
+		<div id="nav"></div>
+		<div id="info"></div>
+		<div class="btn-group">
+			<button type="button" class="btn btn-custom dropdown-toggle" data-toggle="dropdown">Deckkraft </button>
+			<ul class="dropdown-menu">
+				<li><input type="range" min="1" max="100" value="50" class="slider" id="opacityslidebar"></li>
+			</ul>
+		</div>
+		<div class="btn-group">
+			<button type="button" class="btn btn-custom " onclick="invertpicture()">Farben umkehren</button>
+		</div>
+		<div class="btn-group">
+			<button type="button" class="btn btn-custom dropdown-toggle" data-toggle="dropdown">Kontrast ändern</button>
+			<ul class="dropdown-menu">
+				<li><input type="range" min="0" max="200" value="100" class="slider" id="contrastslidebar"></li>
+			</ul>
+		</div>
+		<div class="btn-group">
+			<button type="button" class="btn btn-custom dropdown-toggle" data-toggle="dropdown">Sepia</button>
+			<ul class="dropdown-menu">
+				<li><input type="range" min="0" max="100" value="50" class="slider" id="sepiaslider"></li>
+			</ul>
+		</div>
+		<div class="btn-group">
+				<button type="button" class="btn btn-custom dropdown-toggle" data-toggle="dropdown">Graustufen</button>
+			<ul class="dropdown-menu">
+				<li><input type="range" min="0" max="100" value="50" class="slider" id="grayslider"></li>
+			</ul>
+		</div>
+		<div class="btn-group">
+			<button type="button" class="btn btn-custom dropdown-toggle" data-toggle="dropdown">Farbtonanpassung</button>
+			<ul class="dropdown-menu">
+				<li><input type="range" min="0" max="360" value="100" class="slider" id="colorslider"></li>
+			</ul>
+		</div>	
+		<div class="btn-group">
+			<button type="button" class="btn btn-custom dropdown-toggle" data-toggle="dropdown">Drehung</button>
+			<ul class="dropdown-menu">
+				<li><input type="range" min="0" max="360" value="180" class="slider" id="rotationslider"></li>
+			</ul>
+		</div>
+		<div class="btn-group">
+			<button type="button" class="btn btn-custom dropdown-toggle" data-toggle="dropdown">Verzerren</button>
+			<ul class="dropdown-menu">
+				<li><input type="range" min="-2" max="2" value="1" class="slider" id="skewYslider" step="0.1"></li>
+				<li><input type="range" min="-2" max="2" value="1" class="slider" id="skewXslider" step="0.1"></li>
+			</ul>
+		</div>
+		
+		<div class="btn-group">
+			<button type="button" class="btn btn-custom dropdown-toggle" data-toggle="dropdown">Translate</button>
+			<ul class="dropdown-menu">
+				<li><input type="range" min="-10" max="10" value="1" class="slider" id="TranslateYslider" step="1"></li>
+				<li><input type="range" min="-10" max="10" value="1" class="slider" id="TranslateXslider" step="1"></li>
+			</ul>
+		</div>
+		
+		
+		<div id ="googleWrapper" >
+			<div id="googleMap"></div>
+		</div>
+		<div id="footer"></div>
+		<script src="./js/jquery-3.2.1.min.js"></script>
+		<script src="./assets/js/vendor/popper.min.js"></script>
+		<script src="./js/bootstrap.min.js"></script>
+		<script src="./assets/js/ie10-viewport-bug-workaround.js"></script>
+		<script src="./js/history-map.js"></script>
+		<script>$.get('./footer.html', function(footer) { $('#footer').html(footer); }, 'text'); </script>
+		<script>$.get('./nav.html', function(nav) { $('#nav').html(nav); }, 'text'); </script>
+		<script type="text/javascript">
+		var neLat;
+		var neLng;
+		var swLat;
+		var swLng; 
+		var mapUrl;
+		var opacitiy = "opacity(50)";
+		var invert = false;
+		var locationList = [];
+		
+		var webSocket = new WebSocket('ws://localhost:8080/historymaps/');
+		
+			webSocket.onmessage = function(event) {
+				var response = JSON.parse(event.data);
+				if(typeof response.data.locationData != "undefined") {
+					var html = "";
+					if(response.data.locationData.length > 0) {
+						$.each(response.data.locationData, function(index, location) {
+							html += "<option value=\"" + location.id + "\">" + location.name + "</option>";
+						});
+						$("#selectMapLocation").html(html);
+					} else {
+						// pop up warining
+						$("#addLocationDB").show();
+					}
+				} else if(typeof response.data.mapcoordNeLat != "undefined") {
+					neLat = response.data.mapcoordNeLat;
+					neLng = response.data.mapcoordNeLon;
+					swLat = response.data.mapcoordSwLat;
+					swLng = response.data.mapcoordSwLon;
+					mapUrl = response.data.img;
+					jQuery.getScript("https://maps.googleapis.com/maps/api/js?key=AIzaSyB3-3ej3U_WvTOul32b_9JVq06yGWAq-y0&callback=loadOverlay");
+					$.each(response.data.locations, function(index, location) {
+						locationList = response.data.locations;
+					});
+				}
+			};
+			
+			function loadOverlay() {
+				jQuery.getScript("./js/googleoverlaymap.js", function() {
+					initMap();
+				});
+			}
+			
+			
+			function invertpicture(){
+			
+				if(invert==false){
+					document.getElementById("picture").style.filter="invert(100%)"+""+opacitiy.toString();
+					invert = true;
+					}
+				else{
+					document.getElementById("picture").style.filter="invert(0%)"+""+opacitiy.toString();
+					invert = false;
+				}
+			
+			}
+			$("#sepiaslider").on("input change", function(){
+				sepiaval = $("#sepiaslider").val() / 100; 
+				var help = "sepia" + "(" + sepiaval.toString() + ")";
+				document.getElementById("picture").style.filter=help+""+opacitiy.toString();
+				
+			});
+			
+			
+			
+			
+			$("#grayslider").on("input change", function(){
+				grayval = $("#grayslider").val() / 100; 
+				var help = "grayscale" + "(" + grayval.toString() + ")";
+				document.getElementById("picture").style.filter=help+""+opacitiy.toString();
+			});
+			
+			
+			$("#colorslider").on("input change", function(){
+				colorval = $("#colorslider").val(); 
+				var help = "hue-rotate" + "(" + colorval.toString() + "deg"+")";
+				document.getElementById("picture").style.filter=help+""+opacitiy.toString();
+			});
+			
+			
+			$("#contrastslidebar").on("input change", function(){
+				contrastval = $("#contrastslidebar").val() / 100; 
+				var help = "contrast" + "(" + contrastval.toString() +")";
+				document.getElementById("picture").style.filter=help+""+opacitiy.toString();
+				
+			});
+			
+			$("#opacityslidebar").on("input change", function(){
+				opacitiyval = $("#opacityslidebar").val() / 100; 
+				opacitiy = "opacity" + "(" + opacitiyval.toString() +")";
+				document.getElementById("picture").style.filter=opacitiy;
+				
+			});
+		
+			$("#rotationslider").on("input change", function(){
+				rotationval = $("#rotationslider").val(); 
+				rotation = "rotate" + "(" + rotationval.toString() +"deg"+")";
+				document.getElementById("picture").style.transform=rotation;
+				
+			});
+			
+			
+			$("#skewYslider").on("input change", function(){
+				skewYval = $("#skewYslider").val(); 
+				skewXval = $("#skewXslider").val(); 
+				TranslateYval = $("#TranslateYslider").val(); 
+				TranslateXval = $("#TranslateXslider").val(); 
+				changematrix(skewYval,skewXval,TranslateXval,TranslateYval);
+			});
+			$("#skewXslider").on("input change", function(){
+				TranslateYval = $("#TranslateYslider").val(); 
+				TranslateXval = $("#TranslateXslider").val();
+				skewYval = $("#skewYslider").val(); 
+				skewXval = $("#skewXslider").val(); 
+				changematrix(skewYval,skewXval,TranslateXval,TranslateYval);
+			});
+			$("#TranslateYslider").on("input change", function(){
+				TranslateYval = $("#TranslateYslider").val(); 
+				TranslateXval = $("#TranslateXslider").val();
+				skewYval = $("#skewYslider").val(); 
+				skewXval = $("#skewXslider").val(); 
+				changematrix(skewYval,skewXval,TranslateXval,TranslateYval);
+			});
+			$("#TranslateXslider").on("input change", function(){
+				TranslateYval = $("#TranslateYslider").val(); 
+				TranslateXval = $("#TranslateXslider").val();
+				skewYval = $("#skewYslider").val(); 
+				skewXval = $("#skewXslider").val(); 
+				changematrix(skewYval,skewXval,TranslateXval,TranslateYval);
+			});
+			
+			
+			
+			
+			
+			function changematrix(skewY,skewX,translateX,translateY)
+			{
+				matrix = "matrix" + "("+ "1"+","+ skewY +","+ skewX +","+ "1" +","+ translateX+"," + translateY +")";
+				console.log(matrix);
+				document.getElementById("picture").style.transform= matrix;
+			}
+			
+			
+			
+			
+			
+			
+			webSocket.onerror = function(event) { $('#info').html("<div class=\"alert alert-danger alert-dismissable fade show\" style=\"border-radius: 0; margin: 0px;\"><a href=\"#\" class=\"close\" data-dismiss=\"alert\" aria-label=\"close\">&times;</a><strong>ERROR: </strong> Database is not available!</div>"); }
+			
+			$.urlParam = function(name) {
+				var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+				if (results == null) return null;
+				return decodeURI(results[1]) || 0;
+			}
+
+			webSocket.onopen = function() {
+				getMapById(webSocket, "" + $.urlParam('mapId'));
+			};
+		</script>
+		
+	</body>
+	<style>
+		#googleMap{
+			height: 100%;
+			width: 100%;
+		}
+		
+		#googleWrapper{
+			height: 100%; 
+			width: 100%; 
+			position:absolute; 
+			z-index: 0
+		}
+		
+		#slidebar
+		{
+			position: absolute;
+			z-index: 5;
+			
+		}
+		.slider {
+		-webkit-appearance: none;
+		width: 100%;
+		height: 25px;
+		background: #d3d3d3;
+		outline: none;
+		opacity: 0.7;
+		-webkit-transition: .2s;
+		transition: opacity .2s;
+		}	
+
+		.slider:hover {
+			opacity: 1;
+		}
+
+		.slider::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			appearance: none;
+			width: 25px;
+			height: 25px;
+			background: #4CAF50;
+			cursor: pointer;
+		}
+
+		.slider::-moz-range-thumb {
+			width: 25px;
+			height: 25px;
+			border-radius: 50%;
+			background: #00CED1;
+			cursor: pointer;
+		}
+	</style>
+	
+
+</html>

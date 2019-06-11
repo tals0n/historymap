@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="de">
+	<head>
+		<title>History Map</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="./css/bootstrap.min.css">
+		<link rel="stylesheet" href="./css/font-awesome.min.css">
+		<link rel="stylesheet" href="./css/footer.css">
+	</head>
+	<body>
+		<div id="nav"></div>
+		<div id="info"></div>
+		<div id="temp"></div>
+		<div style="background-color:#00CED1;" !important class="jumbotron">
+			<div style= "color:#F8F8FF;" class="container mt-1"><h1>Bearbeiten der Orte</h1></div>
+		</div>
+		<div class="container mt-1">		
+			<form>
+				<label class="mt-3" for="name">Ortsname</label>
+				<input type="text" class="form-control" id="name" aria-describedby="name_help" placeholder="Ortsname">
+				<small id="name_help" class="form-text text-muted">Ortsname</small>
+				<label class="mt-3" for="lon">Längengrad</label>
+				<input type="text" class="form-control" id="lon" aria-describedby="lon_help" placeholder="49.6348839">
+				<small id="lon_help" class="form-text text-muted">Längengrad des Ortes</small>
+				<label class="mt-3" for="lat">Breitengrad</label>
+				<input type="text" class="form-control" id="lat" aria-describedby="lat_help" placeholder="8.3445789">
+				<small id="lat_help" class="form-text text-muted">Breitengrad des Ortes</small>
+				<label class="mt-3" for="description">Beschreibung der Karte</label>
+				<input type="text" class="form-control" id="description" aria-describedby="description_help" placeholder="Beschreibung">
+				<small id="description_help" class="form-text text-muted">Beschreibung der Karte</small>
+				<div class="mt-3" id ="googleWrapper" >
+					<div id="googleMap"></div>
+				</div>
+				<small id="googleMap_help" class="form-text text-muted"></small>
+				<button type="button" class="btn btn-custom my-4" onclick="modifyLocationFE()">Ort Bearbeiten</button>
+				<div id= sendLocationalert> </div>
+				<button type="button" class="btn btn-custom my-4" onclick="removeLocationFE()">Ort Löschen</button>
+			</form>
+		</div>
+		<div id="footer"></div>
+		<script src="./js/jquery-3.2.1.min.js"></script>
+		<script src="./assets/js/vendor/popper.min.js"></script>
+		<script src="./js/bootstrap.min.js"></script>
+		<script src="./assets/js/ie10-viewport-bug-workaround.js"></script>
+		<script src="./js/history-map.js"></script>
+		<script>$.get('./footer.html', function(footer) { $('#footer').html(footer); }, 'text'); </script>
+		<script>$.get('./nav.html', function(nav) { $('#nav').html(nav); }, 'text'); </script>
+		<script type="text/javascript">
+			var webSocket = new WebSocket('ws://localhost:8080/historymaps/');
+			var locations = [];
+			webSocket.onmessage = function(event) {
+				var response = JSON.parse(event.data);
+				if(typeof response.data != "undefined" && typeof response.data.name != "undefined") {
+					$("#name").val(response.data.name);
+					poslng = response.data.lon;
+					poslat = response.data.lat;
+					pos = {lat: poslat,lng: poslng};
+					$("#lon").val(response.data.lon);
+					$("#lat").val(response.data.lat);
+					$("#description").val(response.data.description);					
+				}
+			};
+			
+			webSocket.onerror = function(event) { $('#info').html("<div class=\"alert alert-danger alert-dismissable fade show\" style=\"border-radius: 0; margin: 0px;\"><a href=\"#\" class=\"close\" data-dismiss=\"alert\" aria-label=\"close\">&times;</a><strong>ERROR: </strong> Database is not available!</div>"); }
+			
+			function removeLocationFE(locationID) {
+				removeLocation(webSocket, "" + $.urlParam('locationId'));
+				window.open("./index.html","_self")
+			}
+			
+			function modifyLocationFE() {
+				if($("#name").val() != "" && $("#lon").val() != "" && $("#lat").val() != ""){
+					modifyLocation(webSocket, $.urlParam('locationId'), $("#name").val(), $("#lon").val(), $("#lat").val(), $("#description").val());
+					window.open("./index.html","_self")
+					}
+				else{
+					$('#sendLocationalert').html("<div class=\"alert alert-warning alert-dismissable fade show\" style=\"border-radius: 0; margin: 0px;\"><a href=\"#\" class=\"close\" data-dismiss=\"alert\" aria-label=\"close\">&times;</a><strong>Warnung: </strong> Längen und Breitengrad sowie Name müssen eingetragen werden!!!</div>");
+				}
+			}
+			
+			// https://stackoverflow.com/questions/19491336/get-url-parameter-jquery-or-how-to-get-query-string-values-in-js
+			$.urlParam = function(name) {
+				var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+				if (results == null) return null;
+				return decodeURI(results[1]) || 0;
+			}
+
+			webSocket.onopen = function() {
+				getLocationById(webSocket, "" + $.urlParam('locationId'));
+			};
+		</script> 
+		<script> 
+		
+		
+		
+		var bounds;
+		var rectangle;
+		var marker;
+		var pos;
+		function initMap() {
+
+			var map = new google.maps.Map(document.getElementById('googleWrapper'),{});
+			
+			map.setMapTypeId('hybrid');
+			pos = {lat: 0,lng: 0};
+			map.setCenter(pos);
+			map.setZoom(10);
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(function(position) {
+				map.setCenter(pos);
+				map.setZoom(10);
+				var image = './img/marker.png';
+				var marker = new google.maps.Marker({
+					position: pos,
+					map: map,
+					draggable: true,
+					icon: image
+					});
+				marker.addListener('dragend',SetPositionwithIcon);
+
+				
+			},function() {handleLocationError(true, infoWindow, map.getCenter());
+			});
+			} else {
+          
+				handleLocationError(false, infoWindow, map.getCenter());
+			}
+			function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+			infoWindow.setPosition(pos);
+			infoWindow.setContent(browserHasGeolocation ?
+									  'Error: The Geolocation service failed.' :
+									  'Error: Your browser doesn\'t support geolocation.');
+			}
+			var infoWindow = new google.maps.InfoWindow();
+	
+			function SetPositionwithIcon(event)
+			{
+				$("#lon").val(this.getPosition().lng());
+				$("#lat").val(this.getPosition().lat());
+			}
+			
+			
+			$("#name").on("focusout", function(){
+				if($("#name").val() != "")
+					$("#name").css("background-color", "#00CED1");
+				else
+				{
+					$("#name").css("background-color", "#FA0101");
+				}
+			});
+			
+			
+			
+			$("#description").on("focusout", function(){
+				if($("#description").val() != "")
+					$("#description").css("background-color", "#00CED1");
+				else
+				{
+					$("#description").css("background-color", "#FA0101");
+				}
+			});
+			
+			
+			
+			
+			
+
+			
+	
+		}
+		</script>
+		<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB3-3ej3U_WvTOul32b_9JVq06yGWAq-y0&callback=initMap"> </script>
+		
+	</body>
+	<style>
+		#googleMap{
+			height: 100%;
+			width: 100%;
+		}
+		
+		#googleWrapper{
+			height: 500px;
+		}
+	</style>
+	
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="de">
+	<head>
+		<title>Fill DB</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="./css/bootstrap.min.css">
+		<link rel="stylesheet" href="./css/font-awesome.min.css">
+		<link rel="stylesheet" href="./css/footer.css">
+	</head>
+	<body>	
+		<div id="content"></div>
+		<script src="./js/jquery-3.2.1.min.js"></script>
+		<script src="./js/history-map.js"></script>
+		<script>
+			var webSocket = new WebSocket('ws://localhost:8080/historymaps/');
+			webSocket.onerror = function(event) { onError(event); };
+			webSocket.onmessage = function(event) { onMessage(event); };
+			function onError(event) { $('#content').html("<div class=\"alert alert-danger alert-dismissable fade show\" style=\"border-radius: 0; margin: 0px;\"><a href=\"#\" class=\"close\" data-dismiss=\"alert\" aria-label=\"close\">&times;</a><strong>ERROR: </strong> Database is not available!</div>"); }
+			
+			function onMessage(event) {
+				$('#content').html(event.data);
+			}
+			
+			$(document).ready(function() {
+				alert("hi!");
+				addLocation(webSocket, "worms", 42, 7, "hmmm...");
+				addLocation(webSocket, "alzeyo", 7, 42, "...");
+				addMap(webSocket, "https://www.google.de/", "https://www.google.de/logos/doodles/2017/fall-equinox-2017-northern-hemisphere-5921669083299840.2-law.gif", 2901, 0.01, ".......", [1, 2]);
+			});			
+		</script>
+	</body>
+</html>

@@ -1,0 +1,7 @@
+SELECT DISTINCT history_map.id AS map_id, history_map.url AS url, history_map.img AS img, history_map.anno AS anno, history_map.scale AS scale, history_map.description AS description, history_location.name AS location_name, history_location.id AS location_id 
+FROM history_location, history_map_location, history_map 
+WHERE history_location.name LIKE ? AND history_map.id = history_map_location.map_id AND history_location.id = history_map_location.location_id LIMIT ? OFFSET ?;
+
+SELECT DISTINCT history_map.id AS map_id, history_map.url AS url, history_map.img AS img, history_map.anno AS anno, history_map.scale AS scale, history_map.description AS description, history_location.name AS location_name, history_location.id AS location_id 
+FROM history_location, history_map_location, history_map, (SELECT DISTINCT history_map.id AS id FROM history_location, history_map_location, history_map WHERE history_location.name LIKE ? AND history_map.id = history_map_location.map_id AND history_location.id = history_map_location.location_id) AS onmap
+WHERE onmap.id = history_map.id AND history_map.id = history_map_location.map_id AND history_location.id = history_map_location.location_id LIMIT ? OFFSET ?

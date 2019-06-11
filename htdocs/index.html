@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="de">
+	<head>
+		<title>History Map</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="./css/bootstrap.min.css">
+		<link rel="stylesheet" href="./css/font-awesome.min.css">
+		<link rel="stylesheet" href="./css/footer.css">
+	</head>
+	<body background="./img/background.png">
+		<div id="nav"></div>
+		<div class="container">
+			<img src="./img/navlogo.png" class="mx-auto d-block py-5" alt="HistoryMap Logo" style="width:250px;" />
+			<h2 class="text-center pb-4"><b>HistoryMaps</b></h2>
+			<div>
+				<form action="./search.html" method="get">
+					<div class="row form-group">
+						<div class="input-group">
+							<input type="text" class="form-control" name="location" placeholder="Ortsnamen eingeben um vorhandene Karten zu sehen" />
+							<input type="hidden" class="form-control" name="page" value="1" />
+							<div class="input-group-btn">
+								<button class="btn btn-info"><i class="fa fa-search"></i></button>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<p class="text-center py-3"><b>Die Datenbank für historische Karten.</b></p>
+			<p class="text-center"><b>Neu hier? Für weitere Informationen bitte <a href="./about.html">hier</a> klicken!</b></p>
+		</div>
+		<div id="footer"></div>
+		<script src="./js/jquery-3.2.1.min.js"></script>
+		<script src="./assets/js/vendor/popper.min.js"></script>
+		<script src="./js/bootstrap.min.js"></script>
+		<script src="./assets/js/ie10-viewport-bug-workaround.js"></script>
+		<script src="./js/history-map.js"></script>
+		<script>$.get('./footer.html', function(footer) { $('#footer').html(footer); }, 'text'); </script>
+		<script>$.get('./nav.html', function(nav) { $('#nav').html(nav); }, 'text'); </script>
+	</body>
+</html>

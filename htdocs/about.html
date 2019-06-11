@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="de">
+	<head>
+		<title>History Maps</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="./css/bootstrap.min.css">
+		<link rel="stylesheet" href="./css/font-awesome.min.css">
+		<link rel="stylesheet" href="./css/footer.css">
+	</head>
+	<body>
+		<div id="nav"></div>
+		<div id="info"></div>
+		<div style="background-color:#00CED1;" !important class="jumbotron">
+			<div style= "color:#F8F8FF;" class="container mt-1"><h1>HistoryMaps</h1></div>
+			<div style= "color:#F8F8FF;" class="container mt-3"><h3>Die Datenbank für Historische Karten</h3></div>
+		</div>
+		<div class="container mt-3">
+			<img src="./img/info.png" class="img-fluid" alt="Responsive image">
+			<div>
+				<img src="./img/tools.png"  style="width:300px;" alt="..." class="img-thumbnail">
+				<h4>Dazu bietet diese Seite auch für Laien einfach bedienbare Werkzeuge zum zuordnen von Informationen zu historischen Karten.</h4>
+			</div>
+			<div class="embed-responsive embed-responsive-16by9">
+				<iframe class="embed-responsive-item" src="./media/Adlerbogen.mp4"></iframe>
+			</div>
+			<h6>Musikquelle: Rob Cavallo Music</h6>
+		</div>
+		<div id="footer"></div>
+		<script src="./js/jquery-3.2.1.min.js"></script>
+		<script src="./assets/js/vendor/popper.min.js"></script>
+		<script src="./js/bootstrap.min.js"></script>
+		<script src="./assets/js/ie10-viewport-bug-workaround.js"></script>
+		<script src="./js/history-map.js"></script>
+		<script>$.get('./footer.html', function(footer) { $('#footer').html(footer); }, 'text'); </script>
+		<script>$.get('./nav.html', function(nav) { $('#nav').html(nav); }, 'text'); </script>
+		<script type="text/javascript">
+		</script>
+	</body>
+	
+	
+
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+	<head>
+		<title>History Map</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="./css/bootstrap.min.css">
+		<link rel="stylesheet" href="./css/font-awesome.min.css">
+		<link rel="stylesheet" href="./css/footer.css">
+	</head>
+	<body>
+		<div id="nav"></div>
+		<div id="info"></div>
+		<div class="container">
+			<ul class="list-unstyled" id="content"></ul>
+			<div class="btn-group" role="group" aria-label="Basic example">
+				<button type="button" id="prevpage" class="btn btn-secondary"><i class="fa fa-chevron-left"></i></button>
+				<button type="button" id="nextpage" class="btn btn-secondary"><i class="fa fa-chevron-right"></i></button>
+			</div>
+		</div>
+		<div id="footer"></div>
+		<script src="./js/jquery-3.2.1.min.js"></script>
+		<script src="./assets/js/vendor/popper.min.js"></script>
+		<script src="./js/bootstrap.min.js"></script>
+		<script src="./assets/js/ie10-viewport-bug-workaround.js"></script>
+		<script src="./js/history-map.js"></script>
+		<script src="./js/jquery.query-object.js"></script>
+		<script>$.get('./footer.html', function(footer) { $('#footer').html(footer); }, 'text'); </script>
+		<script>$.get('./nav.html', function(nav) { $('#nav').html(nav); }, 'text'); </script>
+		<script type="text/javascript">
+			var webSocket = new WebSocket('ws://localhost:8080/historymaps/');
+			
+			webSocket.onerror = function(event) { $('#info').html("<div class=\"alert alert-danger alert-dismissable fade show\" style=\"border-radius: 0; margin: 0px;\"><a href=\"#\" class=\"close\" data-dismiss=\"alert\" aria-label=\"close\">&times;</a><strong>ERROR: </strong> Database is not available!</div>"); }
+			
+			webSocket.onmessage = function(event) {
+				var html = "";
+				if(JSON.parse(event.data).data.maps.length == 0) {
+					if(parseInt($.urlParam('page')) <= 1) {
+						$('#info').html("<div class=\"alert alert-info alert-dismissable fade show\" style=\"border-radius: 0; margin: 0px;\"><a href=\"#\" class=\"close\" data-dismiss=\"alert\" aria-label=\"close\">&times;</a><strong>INFO: </strong> No maps containing '" + $.urlParam('location') + "' found!</div>");
+					} else {
+						$("#content").html("<p class=\"mt-4 mb-3\">no more results</p>");
+					}
+				} else {
+					$.each(JSON.parse(event.data).data.maps, function(index, map) {
+						html += "<li class=\"media my-5\">";
+						
+						if(map.copyright == true) {
+							html += "	<a href=\"./mapview.html?mapId=" + map.id + "\"><img class=\"mr-4\" src=\"" + map.img + "\" alt=\"" + map.id + "\" style=\"width:128px;\" onerror=this.src=\"./img/noimg.jpeg\"></a>";
+						} else {
+							html += "	<img class=\"mr-4\" src=\"./img/nocopy.jpeg\" alt=\"" + map.id + "\" style=\"width:128px;\">";
+						}
+						html += "	<div class=\"media-body mt-1\">";
+						html += "	<p class=\"mt-0 mb-1\">Locations: <span class=\"text-muted\">";
+						$.each(map.locations, function(index, location) {
+							html += "<a href=\"modifylocation.html?locationId=" + location.id + "\">" + location.name + "</a> ";
+						});
+						html += "	</span></p>";
+						if(map.anno != null) {
+							html += "	<p class=\"mt-0 mb-1\">Anno: <span class=\"text-muted\">" + map.anno + "</span></p>";
+						}
+						if(map.scale != null) {
+							html += "	<p class=\"mt-0 mb-1\">Scale: <span class=\"text-muted\">" + map.scale + "</span></p>";
+						}
+						if(map.description != null) {
+							html += "	<p class=\"mt-0 mb-1\">Description: <span class=\"text-muted\">" + map.description + "</span></p>";
+						}
+						html += "	<p class=\"mt-0 mb-1\">Bearbeiten: <span class=\"text-muted\"><a href=\"modify.html?mapId=" + map.id + "\">Klick hier</a></span></p>";
+						if(map.url != null) {
+							html += "	<p class=\"mt-0 mb-1\">Source: <span class=\"text-muted\"><a href=\"" + map.url + "\">" + map.url + "</a></span></p>";
+						}
+						html += "</li>";
+					});
+					$("#content").html(html);
+				}
+			}
+			
+			// https://stackoverflow.com/questions/19491336/get-url-parameter-jquery-or-how-to-get-query-string-values-in-js
+			$.urlParam = function(name) {
+				var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+				if (results == null) return null;
+				return decodeURI(results[1]) || 0;
+			}
+			
+			function openPage() {
+				if(parseInt($.urlParam('page')) <= 1) {
+					$("#prevpage").prop("disabled", true);
+				} else {
+					$("#prevpage").prop("disabled", false);
+				}
+				getMapsByLocationName(webSocket, $.urlParam('location'), ($.urlParam('page') - 1) * 10, 10);
+			}
+			
+			webSocket.onopen = function() {
+				openPage();
+			};
+	
+			$("#prevpage").on("click", function() {
+				window.location.search = jQuery.query.set("page", parseInt($.urlParam('page')) - 1);
+				openPage();
+			});
+
+			$("#nextpage").on("click", function() {
+				window.location.search = jQuery.query.set("page", parseInt($.urlParam('page')) + 1);
+				openPage();
+			});
+		</script>
+	</body>
+</html>

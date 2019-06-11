@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="de">
+	<head>
+		<title>History Map</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="./css/bootstrap.min.css">
+		<link rel="stylesheet" href="./css/font-awesome.min.css">
+		<link rel="stylesheet" href="./css/footer.css">
+	</head>
+	<body>
+		<div id="nav"></div>
+		<ul class="nav nav-tabs" role="tablist">
+			<li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#addLocation" role="tab">Add Location</a></li>
+			<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#addMap" role="tab">Add Map</a></li>
+			<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#addMapLocationRelation" role="tab">Add Map Location Relation</a></li>
+		</ul>
+		<div class="tab-content">
+			<div class="tab-pane active" id="addLocation" role="tabpanel">
+				<div class="container mt-4">
+					<form>
+						<label class="mt-3" for="addLocation_locationName">location name</label>
+						<input type="text" class="form-control" id="addLocation_locationName" aria-describedby="addLocation_locationName_help" placeholder="location name">
+						<small id="addLocation_locationName_help" class="form-text text-muted">The name of the location.</small>
+						<label class="mt-3" for="addLocation_lon">longitude</label>
+						<input type="text" class="form-control" id="addLocation_lon" aria-describedby="addLocation_lon_help" placeholder="longitude eg. 49.6348839">
+						<small id="addLocation_lon_help" class="form-text text-muted">The longitude of the location.</small>
+						<label class="mt-3" for="addLocation_lat">latitude</label>
+						<input type="text" class="form-control" id="addLocation_lat" aria-describedby="addLocation_lat_help" placeholder="latitude eg. 8.3445789">
+						<small id="addLocation_lat_help" class="form-text text-muted">The latitude of the location.</small>
+						<label class="mt-3" for="addLocation_description">description</label>
+						<input type="text" class="form-control" id="addLocation_description" aria-describedby="addLocation_description_help" placeholder="description">
+						<small id="addLocation_description_help" class="form-text text-muted">The description of the location.</small>
+						<button type="button" class="btn btn-primary my-4" onclick="addLocation()">Submit</button>
+					</form>
+				</div>
+			</div>
+			<div class="tab-pane" id="addMap" role="tabpanel">
+				<div class="container mt-4">
+					<form>
+						<label class="mt-3" for="addMap_url">map url</label>
+						<input type="text" class="form-control" id="addMap_url" aria-describedby="addMap_url_help" placeholder="map url">
+						<small id="addMap_url_help" class="form-text text-muted">The url of the map.</small>
+						<label class="mt-3" for="addMap_anno">anno</label>
+						<input type="text" class="form-control" id="addMap_anno" aria-describedby="addMap_anno_help" placeholder="anno">
+						<small id="addMap_anno_help" class="form-text text-muted">The anno of the map.</small>
+						<label class="mt-3" for="addMap_scale">scale</label>
+						<input type="text" class="form-control" id="addMap_scale" aria-describedby="addMap_scale_help" placeholder="scale eg. 0.05">
+						<small id="addMap_scale_help" class="form-text text-muted">The scale of the map.</small>
+						<label class="mt-3" for="addMap_description">description</label>
+						<input type="text" class="form-control" id="addMap_description" aria-describedby="addMap_description_help" placeholder="description">
+						<small id="addMap_description_help" class="form-text text-muted">The description of the map.</small>
+						<button type="button" class="btn btn-primary my-4" onclick="addMap()">Submit</button>
+					</form>
+				</div>
+			</div>
+			<div class="tab-pane" id="addMapLocationRelation" role="tabpanel">
+				<div class="container mt-4">
+					<form>
+						<label class="mt-3" for="addMapLocationRelation_mapId">map id</label>
+						<input type="text" class="form-control" id="addMapLocationRelation_mapId" aria-describedby="addMapLocationRelation_mapId_help" placeholder="map id">
+						<small id="addMapLocationRelation_mapId_help" class="form-text text-muted">The map of the relation.</small>
+						<label class="mt-3" for="addMapLocationRelation_locationId">location id</label>
+						<input type="text" class="form-control" id="addMapLocationRelation_locationId" aria-describedby="addMapLocationRelation_locationId_help" placeholder="location id">
+						<small id="addMapLocationRelation_locationId_help" class="form-text text-muted">The location of the relation.</small>
+						<button type="button" class="btn btn-primary my-4" onclick="addMapLocationRelation()">Submit</button>
+					</form>
+				</div>
+			</div>
+		</div>	
+		<div id="footer"></div>
+		<script src="./js/jquery-3.2.1.min.js"></script>
+		<script src="./assets/js/vendor/popper.min.js"></script>
+		<script src="./js/bootstrap.min.js"></script>
+		<script src="./assets/js/ie10-viewport-bug-workaround.js"></script>
+		<script src="./js/history-map.js"></script>
+		<script>$.get('./footer.html', function(footer) { $('#footer').html(footer); }, 'text'); </script>
+		<script>$.get('./nav.html', function(nav) { $('#nav').html(nav); }, 'text'); </script>
+		<script type="text/javascript">
+			var webSocket = new WebSocket('ws://localhost:8080/historymaps/');
+			
+			webSocket.onerror = function(event) {
+				onError(event);
+			};
+			
+			webSocket.onopen = function(event) {
+				onOpen(event);
+			};
+			
+			webSocket.onmessage = function(event) {
+				onMessage(event);
+			};
+			
+			function onMessage(event) {
+				document.getElementById('messages').innerHTML = event.data;
+			}
+			
+			function onOpen(event) {
+				document.getElementById('messages').innerHTML = 'Connection established';
+			}
+			
+			function onError(event) {
+				alert(event.data);
+			}
+		</script>
+	</body>
+</html>

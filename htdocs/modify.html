@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="de">
+	<head>
+		<title>History Map</title>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="./css/bootstrap.min.css">
+		<link rel="stylesheet" href="./css/font-awesome.min.css">
+		<link rel="stylesheet" href="./css/footer.css">
+	</head>
+	<body>
+		<div id="nav"></div>
+		<div id="info"></div>
+		<div id="temp"></div>
+		<div style="background-color:#00CED1;" !important class="jumbotron">
+			<div style= "color:#F8F8FF;" class="container mt-1"><h1>Karte ändern</h1></div>
+		</div>
+		<div class="container mt-1">		
+			<form>
+				<div id="addMap">
+					<label class="mt-3" for="url">Internetadresse der Karte</label>
+					<input type="text" class="form-control" id="url" aria-describedby="url_help" placeholder="">
+					<small id="url_help" class="form-text text-muted">Internetadresse der Karte</small>
+					<label class="mt-3" for="url">Internetadresse des Bildes</label>
+					<input type="text" class="form-control" id="img" aria-describedby="img_help" placeholder="">
+					<small id="img_help" class="form-text text-muted">Internetadresse des Bildes</small>
+					<label class="mt-3" for="anno">Alter der Karte</label>
+					<input type="text" class="form-control" id="anno" aria-describedby="anno_help" placeholder="Zum Beispiel: 1870">
+					<small id="anno_help" class="form-text text-muted">Alter der Karte</small>
+					<label class="mt-3" for="scale">Maßstab</label>
+					<div class="input-group">
+						<span class="input-group-addon">1:</span>
+						<input type="text" class="form-control" id="scale" aria-describedby="scale_help" placeholder="zum Beispiel:500">
+					</div>
+					<small id="scale_help" class="form-text text-muted">Maßstab der Karte.</small>
+					<label class="mt-3" for="description">Beschreibung der Karte</label>
+					<input type="text" class="form-control" id="description" aria-describedby="description_help" placeholder="description">
+					<small id="description_help" class="form-text text-muted">Beschreibung der Karte.</small>
+					<div class="btn-group">
+					<button type="button" class="btn btn-custom dropdown-toggle" data-toggle="dropdown">Deckkraft </button>
+					<ul class="dropdown-menu">
+						<li><input type="range" min="1" max="100" value="50" class="slider" id="opacityslidebar"></li>
+					</ul>
+					</div>
+					<div class="btn-group">
+						<button type="button" class="btn btn-custom " onclick="invertpicture()">Farben umkehren</button>
+					</div>
+					<div class="btn-group">
+						<button type="button" class="btn btn-custom dropdown-toggle" data-toggle="dropdown">Kontrast ändern</button>
+						<ul class="dropdown-menu">
+							<li><input type="range" min="0" max="200" value="100" class="slider" id="contrastslidebar"></li>
+						</ul>
+					</div>
+					<div class="btn-group">
+						<button type="button" class="btn btn-custom dropdown-toggle" data-toggle="dropdown">Sepia</button>
+						<ul class="dropdown-menu">
+							<li><input type="range" min="0" max="100" value="50" class="slider" id="sepiaslider"></li>
+						</ul>
+					</div>
+					<div class="btn-group">
+						<button type="button" class="btn btn-custom dropdown-toggle" data-toggle="dropdown">Graustufen</button>
+						<ul class="dropdown-menu">
+							<li><input type="range" min="0" max="100" value="50" class="slider" id="grayslider"></li>
+						</ul>
+					</div>
+					<div class="btn-group">
+						<button type="button" class="btn btn-custom dropdown-toggle" data-toggle="dropdown">Farbtonanpassung</button>
+						<ul class="dropdown-menu">
+						<li><input type="range" min="0" max="360" value="100" class="slider" id="colorslider"></li>
+					</ul>
+					</div>
+					<div class="mt-3" id ="googleWrapper" >
+						<div id="googleMap"></div>
+					</div>
+					<small id="googleMap_help" class="form-text text-muted">Positionsdaten der Karte durch bewegen der Vierecks bestimmen und Position der Ortes durch verschieben des Symbols festlegen.</small>
+				</div>
+				<div id="addLocation">
+					<h3 class="mt-5 mb-4">Add location to map</h3>
+					<ul class="list-group" id="mapLocations">
+						<!-- <li class="list-group-item" id="locationID-1">Worms<span class="close" onclick="deleteLocation(1)" aria-label="close">&times;</span></li>
+						<li class="list-group-item" id="locationID-2">Alzey<span class="close" onclick="deleteLocation(2)" aria-label="close">&times;</span></li>
+						<li class="list-group-item" id="locationID-3">Monsheim<span class="close" onclick="deleteLocation(3)" aria-label="close">&times;</span></li>
+						<li class="list-group-item" id="locationID-4">Lautersheim<span class="close" onclick="deleteLocation(4)" aria-label="close">&times;</span></li>
+						<li class="list-group-item" id="locationID-5">Frankfurt<span class="close" onclick="deleteLocation(5)" aria-label="close">&times;</span></li> -->
+					</ul>
+				</div>
+				<div id="findLocation">
+					<label class="mt-4" for="sel1">Hinzufügen eines Ortes zu der Karte</label>
+					<div class="row form-group">
+						<div class="input-group">
+							<input type="text" class="form-control" id="findLocationLike" aria-describedby="find_location_help" name="location" placeholder="Suche Ort" />
+							<div class="input-group-btn">
+								<button type="button" onclick="findLocationFE()" class="btn btn-info"><i class="fa fa-search"></i></button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="selectLocation">
+					<small id="location_help" class="form-text text-muted">The ...</small>
+					<label for="sel1">Ort auswählen:</label>
+					<div class="row form-group">
+						<div class="input-group">
+							<select aria-describedby="location_list_help" class="form-control" id="selectMapLocation">
+								<!-- <option value="1">Hallo Welt</option>
+								<option value="2">Hallo sonst was</option>
+								<option value="3">Hallo test</option>
+								<option value="4">Hallo test2</option> -->
+							</select>
+							<div class="input-group-btn">
+								<button type="button" class="btn btn-success" onclick="addMapLocationFE()"><i class="fa fa-plus"></i></button>
+								<button type="button" class="btn btn-danger" onclick="abortAddMapLocationFE()"><i class="fa fa-times"></i></button>
+							</div>
+						</div>
+					</div>
+					<small id="location_list_help" class="form-text text-muted">The ...</small>
+				</div>
+				<div id="addLocationDB">
+					<h3>Ort anlegen</h3>
+					<label class="mt-3" for="addLocation_locationName">Orstname</label>
+					<input type="text" class="form-control" id="locationName" aria-describedby="addLocation_locationName_help" placeholder="Orstname">
+					<small id="addLocation_locationName_help" class="form-text text-muted">Der name des Ortes oder der Position</small>
+					<label class="mt-3" for="addLocation_lon">Längengrad</label>
+					<input type="text" class="form-control" id="locationLon" aria-describedby="addLocation_lon_help" placeholder="49.6348839">
+					<small id="addLocation_lon_help" class="form-text text-muted">Der Längengrad des Ortes</small>
+					<label class="mt-3" for="addLocation_lat">Breitengrad</label>
+					<input type="text" class="form-control" id="locationLat" aria-describedby="addLocation_lat_help" placeholder="8.3445789">
+					<small id="addLocation_lat_help" class="form-text text-muted">Der Breitengrad des Ortes</small>
+					<label class="mt-3" for="addLocation_description">Beschreibung</label>
+					<input type="text" class="form-control" id="locationDescription" aria-describedby="addLocation_description_help" placeholder="Beschreibung">
+					<small id="addLocation_description_help" class="form-text text-muted">Die Beschreibung des Ortes eingeben</small>
+					<button type="button" class="btn btn-primary my-4" onclick="addLocationFE()">Ort bestätigen</button>
+					<div id= sendLocationalert> </div>
+				</div>
+				<div class="form-check">
+					<label class="form-check-label mt-5">
+					<input class="form-check-input" id="copyright" type="checkbox">
+						Inhaber der Bildrechte?
+					</label>
+				</div>
+				<button type="button" class="btn btn-custom my-4" onclick="addMapFE()">Karte Ändern</button>
+				<div id= sendAlert> </div>
+				<button type="button" class="btn btn-custom my-4" onclick="removeMapFE()">Karte Löschen</button>
+			</form>
+		</div>
+		<div id="footer"></div>
+		<script src="./js/jquery-3.2.1.min.js"></script>
+		<script src="./assets/js/vendor/popper.min.js"></script>
+		<script src="./js/bootstrap.min.js"></script>
+		<script src="./assets/js/ie10-viewport-bug-workaround.js"></script>
+		<script src="./js/history-map.js"></script>
+		<script>$.get('./footer.html', function(footer) { $('#footer').html(footer); }, 'text'); </script>
+		<script>$.get('./nav.html', function(nav) { $('#nav').html(nav); }, 'text'); </script>
+		<script type="text/javascript">
+			var webSocket = new WebSocket('ws://localhost:8080/historymaps/');
+			var locations = [];
+			
+			var nwLat;
+			var nwLng;
+			var neLat;
+			var neLng;
+			var swLat;
+			var swLng;
+			var seLat;
+			var seLng;
+			var map;
+			var mapUrl;
+			var overlay;
+			var pos;
+			var rectangle;
+			var marker;
+			var opacitiy = "opacity(50)";
+			var invert = false;	
+			var urlValid,imgValid;			
+			
+			
+			webSocket.onmessage = function(event) {
+				var response = JSON.parse(event.data);
+				if(typeof response.data.locationData != "undefined") {
+					var html = "";
+					if(response.data.locationData.length > 0) {
+						$("#selectLocation").show();
+						$("#findLocation").hide();
+						$("#addLocationDB").hide();
+						$.each(response.data.locationData, function(index, location) {
+							html += "<option value=\"" + location.id + "\">" + location.name + "</option>";
+						});
+						$("#selectMapLocation").html(html);
+					} else {
+						// pop up warining
+						$("#addLocationDB").show();
+					}
+				} else if(typeof response.data.anno != "undefined") {
+					$("#anno").val(response.data.anno);
+					$("#scale").val(response.data.scale);
+					$("#description").val(response.data.description);
+					$("#url").val(response.data.url);
+					$("#img").val(response.data.img);
+					mapUrl = response.data.img;
+					nwLat = response.data.mapcoordNwLat;
+					nwLng = response.data.mapcoordNwLon;
+					neLat = response.data.mapcoordNeLat;
+					neLng = response.data.mapcoordNeLon;
+					swLat = response.data.mapcoordSwLat;
+					swLng = response.data.mapcoordSwLon;
+					seLat = response.data.mapcoordSeLat;
+					seLng = response.data.mapcoordSeLon;
+					jQuery.getScript("https://maps.googleapis.com/maps/api/js?key=AIzaSyB3-3ej3U_WvTOul32b_9JVq06yGWAq-y0&callback=loadOverlay");
+					$.each(response.data.locations, function(index, location) {
+						locationList = response.data.locations;
+						locations.push("" + location.id);
+						$("#mapLocations").append("<li class=\"list-group-item\" id=\"locationID-" + location.id + "\">" + location.name + "<span class=\"close\" onclick=\"deleteLocation(" + location.id + ")\" aria-label=\"close\">&times;</span></li>");
+					});
+					
+					
+				}
+			};
+			
+			function loadOverlay() {
+				jQuery.getScript("./js/googleoverlaymodify.js", function() {
+					initMap();
+				});
+			}
+			
+			
+			webSocket.onerror = function(event) { $('#info').html("<div class=\"alert alert-danger alert-dismissable fade show\" style=\"border-radius: 0; margin: 0px;\"><a href=\"#\" class=\"close\" data-dismiss=\"alert\" aria-label=\"close\">&times;</a><strong>ERROR: </strong> Database is not available!</div>"); }
+			
+			function deleteLocation(locationID) {
+				$("#locationID-" + locationID).remove();
+				locations = $.grep(locations, function(value) { return value != locationID; });
+			}
+			
+			function addMapFE() {
+				if($("#url").val() != "" && $("#img").val() != "" && locations.length >= 0){
+						if($("#anno").val() != "" && $("#scale").val() != ""){
+							modifyMap(webSocket, $("#url").val(), $("#img").val(), $("#copyright").is(':checked'), $("#anno").val(), $("#scale").val(), nwLat, nwLng ,neLat, neLng, swLat, swLng, seLat, seLng,$("#description").val(),$.urlParam('mapId'), locations);
+							window.open("./index.html","_self")
+						}
+						else{
+							var helper = 1;
+							if ($("#anno").val() == "" && $("#scale").val() == ""){
+								modifyMap(webSocket, $("#url").val(), $("#img").val(), $("#copyright").is(':checked'), $("#anno").val(), $("#scale").val(), nwLat, nwLng ,neLat, neLng, swLat, swLng, seLat, seLng,$("#description").val(),$.urlParam('mapId'), locations);
+								window.open("./index.html","_self")
+							}
+							
+							else if ($("#anno").val() == ""){
+								modifyMap(webSocket, $("#url").val(), $("#img").val(), $("#copyright").is(':checked'), $("#anno").val(), $("#scale").val(), nwLat, nwLng ,neLat, neLng, swLat, swLng, seLat, seLng,$("#description").val(),$.urlParam('mapId'), locations);
+								window.open("./index.html","_self")
+							}
+							
+							else if  ($("#scale").val() == ""){
+								modifyMap(webSocket, $("#url").val(), $("#img").val(), $("#copyright").is(':checked'), $("#anno").val(), $("#scale").val(), nwLat, nwLng ,neLat, neLng, swLat, swLng, seLat, seLng,$("#description").val(),$.urlParam('mapId'), locations);
+								window.open("./index.html","_self")
+							}
+						}
+					}
+					else{
+						$('#sendAlert').html("<div class=\"alert alert-warning alert-dismissable fade show\" style=\"border-radius: 0; margin: 0px;\"><a href=\"#\" class=\"close\" data-dismiss=\"alert\" aria-label=\"close\">&times;</a><strong>Warnung: </strong> Bildquelle sowie der Direktlink zum Bild und mindestens ein Ort müssen eingetragen werden!!!</div>"); 
+					}
+				}
+		
+			function addMapLocationFE() {
+				var locationId = $("#selectMapLocation").val();
+				locations.push("" + locationId);
+				var locationName = $("#selectMapLocation > option[value=" + locationId + "]").text();
+				if(locationName != null) {
+					$("#selectLocation").hide();
+					$("#findLocation").show();
+					$("#addLocationDB").hide();
+					$("#mapLocations").append("<li class=\"list-group-item\" id=\"locationID-" + locationId + "\">" + locationName + "<span class=\"close\" onclick=\"deleteLocation(" + locationId + ")\" aria-label=\"close\">&times;</span></li>");
+				}
+			}
+			
+			function findLocationFE() {
+				var locationLike = $("#findLocationLike").val();
+				getLocationsLike(webSocket, locationLike);
+			}
+			
+			function addLocationFE() {
+				if($("#locationName").val() != "" && $("#locationLon").val() != "" && $("#locationLon").val() != ""){
+					addLocation(webSocket, $("#locationName").val(), $("#locationLon").val(), $("#locationLat").val(), $("#locationDescription").val());
+					$("#selectLocation").hide();
+					$("#findLocation").show();
+					$("#addLocationDB").hide();
+					}
+				else{
+				$('#sendLocationalert').html("<div class=\"alert alert-warning alert-dismissable fade show\" style=\"border-radius: 0; margin: 0px;\"><a href=\"#\" class=\"close\" data-dismiss=\"alert\" aria-label=\"close\">&times;</a><strong>Warnung: </strong> Längen und Breitengrad sowie Name müssen eingetragen werden!!!</div>");
+				}
+			}
+			
+			function abortAddMapLocationFE() {
+				$("#selectLocation").hide();
+				$("#findLocation").show();
+				$("#addLocationDB").hide();
+			}
+			function removeMapFE(mapID) {
+				removeMap(webSocket, "" + $.urlParam('mapId'));
+				window.open("./index.html","_self")
+			}
+
+			$(document).ready(function() {
+				$("#selectLocation").hide();
+				$("#addLocationDB").hide();
+			});
+			
+			// https://stackoverflow.com/questions/19491336/get-url-parameter-jquery-or-how-to-get-query-string-values-in-js
+			$.urlParam = function(name) {
+				var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+				if (results == null) return null;
+				return decodeURI(results[1]) || 0;
+			}
+
+			webSocket.onopen = function() {
+				getMapById(webSocket, "" + $.urlParam('mapId'));
+			};
+			
+			function invertpicture(){
+			
+				if(invert==false){
+					document.getElementById("picture").style.filter="invert(100%)"+""+opacitiy.toString();
+					invert = true;
+					}
+				else{
+					document.getElementById("picture").style.filter="invert(0%)"+""+opacitiy.toString();
+					invert = false;
+				}
+			
+			}
+			$("#sepiaslider").on("input change", function(){
+				sepiaval = $("#sepiaslider").val() / 100; 
+				var help = "sepia" + "(" + sepiaval.toString() + ")";
+				document.getElementById("picture").style.filter=help+""+opacitiy.toString();
+				
+			});
+			
+			
+			
+			
+			$("#grayslider").on("input change", function(){
+				grayval = $("#grayslider").val() / 100; 
+				var help = "grayscale" + "(" + grayval.toString() + ")";
+				document.getElementById("picture").style.filter=help+""+opacitiy.toString();
+			});
+			
+			
+			$("#colorslider").on("input change", function(){
+				colorval = $("#colorslider").val(); 
+				var help = "hue-rotate" + "(" + colorval.toString() + "deg"+")";
+				document.getElementById("picture").style.filter=help+""+opacitiy.toString();
+			});
+			
+			
+			$("#contrastslidebar").on("input change", function(){
+				contrastval = $("#contrastslidebar").val() / 100; 
+				var help = "contrast" + "(" + contrastval.toString() +")";
+				document.getElementById("picture").style.filter=help+""+opacitiy.toString();
+				
+			});
+			
+			$("#opacityslidebar").on("input change", function(){
+				opacitiyval = $("#opacityslidebar").val() / 100; 
+				opacitiy = "opacity" + "(" + opacitiyval.toString() +")";
+				document.getElementById("picture").style.filter=opacitiy;
+				
+			});
+			
+			
+			
+			$("#url").on("focusout", function(){
+				if($("#url").val() != "" && typeof $("#url").val() == "string"){
+						$("#url").css("background-color", "#00CED1");
+						urlValid = true;
+				}
+				else
+				{
+					$("#url").css("background-color", "#FA0101");
+				}
+			});
+			
+			$("#anno").on("focusout", function(){
+				var re = new RegExp('^[0-9]+$');
+				if(re.test($("#anno").val()))
+					$("#anno").css("background-color", "#00CED1");
+				else
+				{
+					$("#anno").css("background-color", "#FA0101");
+				}
+			});
+			
+			$("#scale").on("focusout", function(){
+				var re = new RegExp('[\+]?([\-]?([0-9]{1,})?[\.]?[0-9]{1,})');
+				if(re.test($("#scale").val()))
+					$("#scale").css("background-color", "#00CED1");
+				else
+				{
+					$("#scale").css("background-color", "#FA0101");
+				}
+			});
+			
+			$("#description").on("focusout", function(){
+				if($("#description").val() != "")
+					$("#description").css("background-color", "#00CED1");
+				else
+				{
+					$("#description").css("background-color", "#FA0101");
+				}
+			});
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+		</script> 
+
+	</body>
+	<style>
+		#googleMap{
+			height: 100%;
+			width: 100%;
+		}
+		
+		#googleWrapper{
+			height: 500px;
+		}
+		
+		
+		.slider {
+		-webkit-appearance: none;
+		width: 100%;
+		height: 25px;
+		background: #d3d3d3;
+		outline: none;
+		opacity: 0.7;
+		-webkit-transition: .2s;
+		transition: opacity .2s;
+		}	
+
+		.slider:hover {
+			opacity: 1;
+		}
+
+		.slider::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			appearance: none;
+			width: 25px;
+			height: 25px;
+			background: #4CAF50;
+			cursor: pointer;
+		}
+
+		.slider::-moz-range-thumb {
+			width: 25px;
+			height: 25px;
+			border-radius: 50%;
+			background: #00CED1;
+			cursor: pointer;
+		}
+	</style>
+</html>
